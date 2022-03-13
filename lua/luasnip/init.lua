@@ -25,13 +25,15 @@ local function match_snippet(line, snippet_table)
 	local expand_params
 	local fts = util.get_snippet_filetypes()
 
-	-- search filetypes, then "all".
-	for _, ft in ipairs(fts) do
-		for _, snip in ipairs(snippet_table[ft] or {}) do
-			expand_params = snip:matches(line)
-			if expand_params then
-				-- return matching snippet and table with expand-parameters.
-				return snip, expand_params
+	for _, prio in ipairs(snippet_table.order) do
+		local snippets = snippet_table[prio]
+		for _, ft in ipairs(fts) do
+			for _, snip in ipairs(snippets[ft] or {}) do
+				expand_params = snip:matches(line)
+				if expand_params then
+					-- return matching snippet and table with expand-parameters.
+					return snip, expand_params
+				end
 			end
 		end
 	end
@@ -115,7 +117,7 @@ end
 local function expandable()
 	next_expand, next_expand_params = match_snippet(
 		util.get_current_line_to_cursor(),
-		ls.snippets
+		session.by_prio.snippets
 	)
 	return next_expand ~= nil
 end
@@ -221,7 +223,7 @@ local function expand()
 	else
 		snip, expand_params = match_snippet(
 			util.get_current_line_to_cursor(),
-			ls.snippets
+			session.by_prio.snippets
 		)
 	end
 	if snip then
@@ -246,7 +248,7 @@ end
 local function expand_auto()
 	local snip, expand_params = match_snippet(
 		util.get_current_line_to_cursor(),
-		ls.autosnippets
+		session.by_prio.autosnippets
 	)
 	if snip then
 		local cursor = util.get_cursor_0ind()
@@ -572,6 +574,7 @@ ls = {
 	refresh_notify = refresh_notify,
 }
 
+-- alias ls.snippet/ls.autosnippets to snippets of priority 1000.
 setmetatable(ls, {
 	__index = function(_, k)
 		if k == "snippets" or k == "autosnippets" then
