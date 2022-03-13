@@ -567,11 +567,22 @@ ls = {
 	restore_node = require("luasnip.nodes.restoreNode").R,
 	parser = require("luasnip.util.parser"),
 	config = require("luasnip.config"),
-	snippets = { all = {} },
-	autosnippets = { all = {} },
 	session = session,
 	cleanup = cleanup,
 	refresh_notify = refresh_notify,
 }
+
+setmetatable(ls, {
+	__index = function(_, k)
+		if k == "snippets" or k == "autosnippets" then
+			return session.by_prio[k][1000]
+		end
+	end,
+	__newindex = function(_, k, v)
+		if k == "snippets" or k == "autosnippets" then
+			session.by_prio[k][1000] = v
+		end
+	end,
+})
 
 return ls

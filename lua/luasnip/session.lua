@@ -27,4 +27,17 @@ M.last_expand_opts = nil
 -- init with false, it will be set by (eg.) ls.jump().
 M.jump_active = false
 
+M.by_prio = {
+	snippets = {
+		[1000] = {
+			all = {},
+		},
+	},
+	autosnippets = {
+		[1000] = {
+			all = {},
+		},
+	},
+}
+
 return M
