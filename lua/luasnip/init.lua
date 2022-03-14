@@ -524,6 +524,43 @@ local function refresh_notify(ft)
 	vim.cmd([[doautocmd User LuasnipSnippetsAdded]])
 end
 
+local function add_snippets(ft, snippets, opts)
+	vim.validate({
+		filetype = { ft, "string" },
+		snippets = { snippets, "table" },
+		opts = { opts, { "table", "nil" } },
+	})
+
+	opts = opts or {}
+	-- alternatively, "autosnippets"
+	local snippet_type = opts.type or "snippets"
+
+	-- TODO: not the nicest loop, can it be improved? Do table-checks outside
+	-- it, preferably.
+	for _, snip in ipairs(snippets) do
+		snip.priority = opts.override_prio
+			or snip.priority
+			or opts.default_prio
+			or 1000
+
+		if not session.by_prio[snippet_type][snip.priority] then
+			session.by_prio[snippet_type][snip.priority] = {}
+		end
+
+		local ft_table
+		if not session.by_prio[snippet_type][snip.priority][ft] then
+			ft_table = {}
+			session.by_prio[snippet_type][snip.priority][ft] = ft_table
+		else
+			ft_table = session.by_prio[snippet_type][snip.priority][ft]
+		end
+
+		ft_table[#ft_table + 1] = snip
+	end
+
+	refresh_notify(ft)
+end
+
 ls = {
 	expand_or_jumpable = expand_or_jumpable,
 	expand_or_locally_jumpable = expand_or_locally_jumpable,
@@ -549,6 +586,7 @@ ls = {
 	unlink_current_if_deleted = unlink_current_if_deleted,
 	filetype_extend = filetype_extend,
 	filetype_set = filetype_set,
+	add_snippets = add_snippets,
 	s = snip_mod.S,
 	sn = snip_mod.SN,
 	t = require("luasnip.nodes.textNode").T,

@@ -1270,6 +1270,13 @@ the lazy_load.
 
 `require("luasnip")`:
 
+- `add_snippets(ft:string, snippets:table, opts:table or nil)`: Makes `snippets`
+  available in `ft`.  
+  `opts` may contain the following keys:
+  - `type`: type of snippets, `"snippets"` or `"autosnippets"`.
+  - `override_prio`: set priority for all snippets.
+  - `default_prio`: set priority only for snippets without snippet-priority.
+
 - `in_snippet()`: returns true if the cursor is inside the current snippet.
 
 - `jumpable(direction)`: returns true if the current node has a
