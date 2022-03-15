@@ -514,6 +514,8 @@ end
 local function cleanup()
 	-- Use this to reload luasnip
 	vim.cmd([[doautocmd User LuasnipCleanup]])
+	-- clear all snippets.
+	session.clear_snippets()
 end
 
 local function refresh_notify(ft)
@@ -528,6 +530,7 @@ local function add_snippets(ft, snippets, opts)
 	vim.validate({
 		filetype = { ft, "string" },
 		snippets = { snippets, "table" },
+		-- optional
 		opts = { opts, { "table", "nil" } },
 	})
 
